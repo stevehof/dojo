@@ -69,9 +69,11 @@ stamp.fromISOString = function(/*String*/ formattedString, /*Number?*/ defaultTi
 		if(match[0] < 100){
 			result.setFullYear(match[0] || 1970);
 		}
-
-		var offset = 0,
+		var offset = 0, offset_missing_hour = 0,
 			zoneSign = match[7] && match[7].charAt(0);
+		if(parseInt(match[3]) != result.getHours() || parseInt(match[4]) != result.getMinutes()){
+                        offset_missing_hour =  (result.getHours() - parseInt(match[3]))*60 + (result.getMinutes()-parseInt(match[4]));
+                }
 		if(zoneSign != 'Z'){
 			offset = ((match[8] || 0) * 60) + (Number(match[9]) || 0);
 			if(zoneSign != '-'){ offset *= -1; }
@@ -80,7 +82,7 @@ stamp.fromISOString = function(/*String*/ formattedString, /*Number?*/ defaultTi
 			offset -= result.getTimezoneOffset();
 		}
 		if(offset){
-			result.setTime(result.getTime() + offset * 60000);
+			result.setTime(result.getTime() + (offset - offset_missing_hour) * 60000);
 		}
 	}
 
